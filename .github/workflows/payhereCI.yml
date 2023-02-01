@@ -1,4 +1,4 @@
-name: gaggamagga CI
+name: Payhere CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     branches: [ "develop" ]
 
 jobs:
-  build:
+  test_build:
 
     runs-on: ubuntu-latest
     strategy:
