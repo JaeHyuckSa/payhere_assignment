@@ -145,7 +145,7 @@ class UserSignupAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class UserLoginAPIViewTestCase(APITestCase):
+class UserSigninAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(self):
         self.user_success_data = {"email": "test1234@test.com", "password": "Test1234!"}
@@ -229,3 +229,40 @@ class UserTokenVerifyAPIViewTestCase(APITestCase):
             data={"token": f"{self.access_token}123"},
         )
         self.assertEqual(response.status_code, 401)
+
+
+class UserSignoutAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(self):
+        self.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        self.refresh_token = self.client.post(reverse("auth-signin"), self.user_data).data["refresh"]
+    
+    # (refresh_token)로그아웃 성공
+    def test_refresh_token_logout_success(self):
+        response = self.client.post(
+            path=reverse("auth-signout"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"refresh": self.refresh_token},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    # (refresh_token)로그아웃 실패(refresh 입력안했을 때)
+    def test_refresh_token_logout_fail(self):
+        response = self.client.post(
+            path=reverse("auth-signout"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    # (refresh_token)로그아웃 실패(access 토큰 넣었을 때)
+    def test_refresh_token_logout_invalid_fail(self):
+        response = self.client.post(
+            path=reverse("auth-signout"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"refresh": self.access_token},
+        )
+        self.assertEqual(response.status_code, 400)
