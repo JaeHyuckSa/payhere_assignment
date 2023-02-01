@@ -1,5 +1,5 @@
 # rest_framework_simplejwt
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 # django
 from django.urls import path
@@ -14,4 +14,7 @@ urlpatterns = [
     # Login
     path("signin/", views.CustomTokenObtainPairView.as_view(), name="auth-signin"),
     path("signin/refresh/", TokenRefreshView.as_view(), name="auth-signin-refresh"),
+    
+    # Token verify
+    path("verify/", TokenVerifyView.as_view(), name="auth-verify"),
 ]
