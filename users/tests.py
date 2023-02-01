@@ -143,3 +143,50 @@ class UserSignupAPIViewTestCase(APITestCase):
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
+        
+class UserLoginAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(self):
+        self.user_success_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        self.user_fail_data = {"email": "test1234@test.com", "password": "Test1234!!"}
+        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_success_data).data["access"]
+        self.refresh_token = self.client.post(reverse("auth-signin"), self.user_success_data).data["refresh"]
+
+    # (access_token)로그인 성공
+    def test_access_token_login_success(self):
+        response = self.client.post(reverse("auth-signin"), self.user_success_data)
+        self.assertEqual(response.status_code, 200)
+
+    # (access_token)로그인 실패
+    def test_access_token_login_fail(self):
+        response = self.client.post(reverse("auth-signin"), self.user_fail_data)
+        self.assertEqual(response.status_code, 401)
+
+    # (refresh_token)로그인 성공
+    def test_refresh_token_login_success(self):
+        response = self.client.post(
+            path=reverse("auth-signin-refresh"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"refresh": self.refresh_token},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    # (refresh_token)로그인 실패(refresh 입력안했을 때)
+    def test_refresh_token_login_fail(self):
+        response = self.client.post(
+            path=reverse("auth-signin-refresh"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    # (refresh_token)로그인 실패(access 토큰 넣었을 때)
+    def test_refresh_token_login_invalid_fail(self):
+        response = self.client.post(
+            path=reverse("auth-signin-refresh"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"refresh": self.access_token},
+        )
+        self.assertEqual(response.status_code, 401)
