@@ -6,7 +6,7 @@ class AccountBook(models.Model):
     date_at = models.DateTimeField("날짜")
     day_total_money = models.PositiveIntegerField("일 총 금액", default=0)
     
-    user = models.ForeignKey("users.User", verbose_name="유저", on_delete=models.CASCADE, related_name="account_books")
+    owner = models.ForeignKey("users.User", verbose_name="유저", on_delete=models.CASCADE, related_name="account_books")
     
     class Meta:
         db_table = "AccountBook"
