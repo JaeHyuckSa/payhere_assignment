@@ -4,11 +4,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import  AllowAny
 
+# rest_framework_simplejwt
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 # drf_yasg
 from drf_yasg.utils import swagger_auto_schema
 
 # users
 from .serializers import (
+    CustomTokenObtainPairSerializer,
     SignupSerializer,
 )
 
@@ -27,3 +31,7 @@ class SingupView(APIView):
             serializer.save()
             return Response({"message": "회원가입이 되었습니다."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
