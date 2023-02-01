@@ -17,4 +17,7 @@ urlpatterns = [
     
     # Token verify
     path("verify/", TokenVerifyView.as_view(), name="auth-verify"),
+    
+    # Logout
+    path("signout/", views.SignoutView.as_view(), name="auth-signout"),
 ]

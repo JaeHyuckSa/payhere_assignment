@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 # rest_framework_simplejwt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 # users
 from .models import User
@@ -85,6 +86,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
         return user
 
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -95,3 +97,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
 
         return token
+
+
+class SignoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        self.token = attrs["refresh"]
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+
+        except TokenError:
+            raise serializers.ValidationError(detail={"refresh_token": "유효하지 않거나 만료된 토큰입니다."})
