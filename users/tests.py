@@ -143,7 +143,8 @@ class UserSignupAPIViewTestCase(APITestCase):
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
-        
+
+
 class UserLoginAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(self):
@@ -188,5 +189,43 @@ class UserLoginAPIViewTestCase(APITestCase):
             path=reverse("auth-signin-refresh"),
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
             data={"refresh": self.access_token},
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+class UserTokenVerifyAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(self):
+        self.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        self.refresh_token = self.client.post(reverse("auth-signin"), self.user_data).data["refresh"]
+    
+    # access_token 유효
+    def test_access_token_verify_success(self):
+        response = self.client.post(
+            path=reverse("auth-verify"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"token": self.access_token},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    # refresh_token 유효
+    def test_refresh_token_verify_success(self):
+        response = self.client.post(
+            path=reverse("auth-verify"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"token": self.refresh_token},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    # token 유효하지 않음
+    def test_token_verify_fail(self):
+        response = self.client.post(
+            path=reverse("auth-verify"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"token": f"{self.access_token}123"},
         )
         self.assertEqual(response.status_code, 401)
