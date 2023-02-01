@@ -14,7 +14,6 @@ schema_view = get_schema_view(
         title="Payhere Assignment",
         default_version="v1",
         description="Payhere 가계부 프로젝트 API",
-        assignmane_content= "https://payhere.notion.site/Python-6901edc926cf4df2b28319e30fdc5af1",
         contact=openapi.Contact(email="wogur981208@gmail.com"),
     ),
     public=True,
