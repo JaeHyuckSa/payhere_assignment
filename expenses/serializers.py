@@ -25,3 +25,19 @@ class ExpenseSerializer(serializers.ModelSerializer):
     
     def get_money(self, obj):
         return format(obj.money, ",")
+
+
+class ExpenseCreateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Expense
+        fields = ("money", "expense_detail", "payment_method", "memo", )
+        extra_kwargs = {
+            "money": {
+                "error_messages": {
+                    "required": "금액을 입력해주세요.",
+                    "blank": "금액을 입력해주세요.",
+                    "invalid": "숫자만 입력해주세요.",
+                }
+            },
+        }
