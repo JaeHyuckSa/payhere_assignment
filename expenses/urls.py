@@ -9,4 +9,5 @@ urlpatterns = [
     # Expense
     path("", views.ExpenseListView.as_view(), name="expense-list"),
     path("<int:account_book_id>/", views.ExpenseCreateView.as_view(), name="expense-create"),
+    path("details/<int:expense_id>/", views.ExpenseDetailView.as_view(), name="expense-detail"),    
 ]

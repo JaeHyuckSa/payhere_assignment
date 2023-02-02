@@ -14,6 +14,7 @@ from drf_yasg import openapi
 # expenses
 from .serializers import ExpenseSerializer, ExpenseCreateSerializer
 from .utils import ExpenseCalcUtil
+from .models import Expense
 
 # account_books
 from account_books.models import AccountBook
@@ -75,3 +76,56 @@ class ExpenseCreateView(APIView):
             ExpenseCalcUtil.sub_total_money_expense(account_book, request.data["money"])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ExpenseDetailView(APIView):
+    permission_classes = [IsOwner]
+    
+    def get_objects(self, expense_id):
+        expense = get_object_or_404(Expense, id=expense_id)
+        self.check_object_permissions(self.request, expense)
+        return expense
+    
+    @swagger_auto_schema(
+        operation_summary="특정 지출 조회",
+        responses={200: "성공", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def get(self, request, expense_id):
+        expense = self.get_objects(expense_id)
+        serializer = ExpenseSerializer(expense)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(
+        operation_summary="특정 지출 복제",
+        responses={200: "성공", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def post(self, reuqest, expense_id):
+        expense = self.get_objects(expense_id)
+        expense.id = None
+        expense.save()
+        ExpenseCalcUtil.sub_total_money_expense(expense.account_book, expense.money)
+        return Response({"message":"복사 완료"}, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(
+        request_body=ExpenseCreateSerializer,
+        operation_summary="특정 지출 수정",
+        responses={200: "성공", 400: "인풋값 에러", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def put(self, request, expense_id):
+        expense = self.get_objects(expense_id)
+        serializer = ExpenseCreateSerializer(expense, data=request.data, partial=True, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            ExpenseCalcUtil.mix_total_money_expense(expense.account_book, expense.money, request.data["money"])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @swagger_auto_schema(
+        operation_summary="특정 지출 삭제",
+        responses={204: "성공", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def delete(self, request, expense_id):
+        expense = self.get_objects(expense_id)
+        ExpenseCalcUtil.add_total_money_expense(expense.account_book, expense.money)
+        expense.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
