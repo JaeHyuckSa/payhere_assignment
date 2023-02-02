@@ -172,7 +172,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    # 가계부 생성 실패(날짜 중복)
+    # 가계부 수정 실패 (날짜 중복)
     def test_account_book_detail_put_unique_fail(self):
         response = self.client.put(
             path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
@@ -224,7 +224,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 204)
         
-    # 가계부 수정 실패 (없는 가계부)
+    # 가계부 삭제 실패 (없는 가계부)
     def test_account_book_detail_delete_exist_fail(self):
         response = self.client.delete(
             path=reverse("account-book-details", kwargs={"account_book_id": "15"}),
