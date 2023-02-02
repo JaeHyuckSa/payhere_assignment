@@ -10,6 +10,7 @@ from users.models import User
 # account_book
 from .models import AccountBook
 
+
 class AccountBookAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -81,21 +82,6 @@ class AccountBookAPIViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
     
-    # 가계부 월별 조회 실패 (해당 날짜 가계부 없음)
-    def test_account_book_get_exist_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book')}?date=2023-03",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 404)
-        
-    # 가계부 월별 조회 실패 (비회원)
-    def test_account_book_get_anonymous_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book')}?date=2023-02",
-        )
-        self.assertEqual(response.status_code, 401)
-
     # 가계부 월별 조회 실패 (매개변수 잘못 설정)
     def test_account_book_get_param_fail(self):
         response = self.client.get(
@@ -103,6 +89,21 @@ class AccountBookAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 400)
+        
+    # 가계부 월별 조회 실패 (비회원)
+    def test_account_book_get_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('account-book')}?date=2023-02",
+        )
+        self.assertEqual(response.status_code, 401)
+    
+    # 가계부 월별 조회 실패 (해당 날짜 가계부 없음)
+    def test_account_book_get_exist_fail(self):
+        response = self.client.get(
+            path=f"{reverse('account-book')}?date=2023-03",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
 
 
 class AccountBookDateSetAPIViewTestCase(APITestCase):
@@ -123,22 +124,7 @@ class AccountBookDateSetAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 200)
-        
-    # 가계부 날짜 범위 설정 실패 (해당 날짜 가계부 없음)
-    def test_account_book_date_set_exist_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 404)
 
-    # 가계부 날짜 범위 설정 실패 (비회원)
-    def test_account_book_date_set_anonymous_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
-        )
-        self.assertEqual(response.status_code, 401)
-        
     # 가계부 날짜 범위 설정 실패 (매개변수 잘못 설정)
     def test_account_book_date_set_param_fail(self):
         response = self.client.get(
@@ -146,6 +132,21 @@ class AccountBookDateSetAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 400)
+
+    # 가계부 날짜 범위 설정 실패 (비회원)
+    def test_account_book_date_set_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
+        )
+        self.assertEqual(response.status_code, 401)
+
+    # 가계부 날짜 범위 설정 실패 (해당 날짜 가계부 없음)
+    def test_account_book_date_set_exist_fail(self):
+        response = self.client.get(
+            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
 
 
 class AccountBookDetailAPIViewTestCase(APITestCase):
@@ -190,15 +191,6 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
     
-    # 가계부 수정 실패 (없는 가계부)
-    def test_account_book_detail_put_exist_fail(self):
-        response = self.client.put(
-            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
-            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
-            data={"date_at": "2023-02-06"},
-        )
-        self.assertEqual(response.status_code, 404)
-    
     # 가계부 수정 실패 (비회원)
     def test_account_book_detail_put_anonymous_fail(self):
         response = self.client.put(
@@ -208,13 +200,22 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
     
     # 가계부 수정 실패 (다른 회원)
-    def test_account_book_detail_put_anonymous_fail(self):
+    def test_account_book_detail_put_other_user_fail(self):
         response = self.client.put(
             path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
             data={"date_at": "2023-02-06"},
         )
         self.assertEqual(response.status_code, 403)
+    
+    # 가계부 수정 실패 (없는 가계부)
+    def test_account_book_detail_put_exist_fail(self):
+        response = self.client.put(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
+            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
+            data={"date_at": "2023-02-06"},
+        )
+        self.assertEqual(response.status_code, 404)
     
     # 가계부 삭제 성공
     def test_account_book_detail_delete_success(self):
@@ -223,15 +224,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 204)
-        
-    # 가계부 삭제 실패 (없는 가계부)
-    def test_account_book_detail_delete_exist_fail(self):
-        response = self.client.delete(
-            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
-            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
-        )
-        self.assertEqual(response.status_code, 404)
-        
+    
     # 가계부 삭제 실패 (비회원)
     def test_account_book_detail_delete_anonymous_fail(self):
         response = self.client.delete(
@@ -240,9 +233,17 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
     
     # 가계부 삭제 실패 (다른 회원)
-    def test_account_book_detail_delete_anonymous_fail(self):
+    def test_account_book_detail_delete_other_user_fail(self):
         response = self.client.delete(
             path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
         )
         self.assertEqual(response.status_code, 403)
+    
+    # 가계부 삭제 실패 (없는 가계부)
+    def test_account_book_detail_delete_exist_fail(self):
+        response = self.client.delete(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
+            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
+        )
+        self.assertEqual(response.status_code, 404)

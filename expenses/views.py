@@ -16,9 +16,12 @@ from drf_yasg import openapi
 
 # expenses
 from .models import Expense, ExpenseURL
-from .serializers import ExpenseCreateSerializer, ExpenseSerializer, ExpenseShareUrlSerializer
+from .serializers import (
+    ExpenseCreateSerializer, 
+    ExpenseSerializer, 
+    ExpenseShareUrlSerializer
+)
 from .utils import ExpenseUrlUtil, ExpenseCalcUtil
-
 
 # account_books
 from account_books.models import AccountBook
@@ -45,18 +48,14 @@ class ExpenseListView(APIView):
     
     @swagger_auto_schema(
         manual_parameters=[date_param_config],
-        operation_summary="해당 일자 지출 조회",
-        responses={200: "성공", 400: "매개변수 에러", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+        operation_summary="해당 일자 지출 리스트 조회",
+        responses={200: "성공", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
-        try:
-            date = request.GET.get("date")
-            expense = self.get_objects(date)
-            serializer = ExpenseSerializer(expense, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        except ValidationError:
-            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM-DD)"}, status=status.HTTP_400_BAD_REQUEST)
+        date = request.GET.get("date")
+        expense = self.get_objects(date)
+        serializer = ExpenseSerializer(expense, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ExpenseCreateView(APIView):
@@ -77,7 +76,7 @@ class ExpenseCreateView(APIView):
         serializer = ExpenseCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user, account_book=account_book)
-            ExpenseCalcUtil.sub_total_money_expense(account_book, request.data["money"])
+            ExpenseCalcUtil.sub_total_money_expense(account_book, int(request.data["money"]))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -116,13 +115,17 @@ class ExpenseDetailView(APIView):
         responses={200: "성공", 400: "인풋값 에러", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def put(self, request, expense_id):
-        expense = self.get_objects(expense_id)
-        serializer = ExpenseCreateSerializer(expense, data=request.data, partial=True, context={"request": request})
-        if serializer.is_valid():
-            serializer.save()
-            ExpenseCalcUtil.mix_total_money_expense(expense.account_book, expense.money, request.data["money"])
+        try:
+            expense = self.get_objects(expense_id)
+            serializer = ExpenseCreateSerializer(expense, data=request.data, partial=True, context={"request": request})
+            if serializer.is_valid():
+                serializer.save()
+                ExpenseCalcUtil.mix_total_money_expense(expense.account_book, expense.money, int(request.data["money"]))
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        except KeyError:
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @swagger_auto_schema(
         operation_summary="특정 지출 삭제",
@@ -144,7 +147,7 @@ class ExpenseShareUrlCreateView(APIView):
         return expense
     
     @swagger_auto_schema(
-        operation_summary="특정 지출 공유 URL 생성",
+        operation_summary="특정 지출 공유 단축 URL 생성",
         responses={201: "성공", 208: "자원 존재함", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def post(self, request, expense_id):
@@ -171,8 +174,8 @@ class ExpenseShareUrlView(APIView):
         
     @swagger_auto_schema(
         manual_parameters=[encode_key_param_config],
-        operation_summary="특정 지출 공유 URL 조회",
-        responses={201: "성공", 208: "자원 존재함", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+        operation_summary="특정 지출 공유 단축 URL 조회",
+        responses={201: "성공", 400: "시간 만료", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
         encode_key = request.GET.get("key")
