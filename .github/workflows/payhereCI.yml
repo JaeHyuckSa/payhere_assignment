@@ -39,3 +39,7 @@ jobs:
     - name: Run User App Tests
       run: |
         python manage.py test users
+
+    - name: Run Account Book App Tests
+      run: |
+        python manage.py test account_books

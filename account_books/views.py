@@ -34,7 +34,7 @@ class AccountBookView(APIView):
     @swagger_auto_schema(
         request_body=AccountBookCreateSerializer,
         operation_summary="가계부 생성",
-        responses={201: "성공", 400: "인풋값 에러", 500: "서버 에러"},
+        responses={201: "성공", 400: "인풋값 에러", 401: "인증 오류", 500: "서버 에러"},
     )
     def post(self, request):
         serializer = AccountBookCreateSerializer(data=request.data, context={"request": request})
@@ -46,7 +46,7 @@ class AccountBookView(APIView):
     @swagger_auto_schema(
         manual_parameters=[date_param_config],
         operation_summary="월별 가계부 조회",
-        responses={200: "성공", 400: "매개변수 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 400: "매개변수 에러", 401: "인증 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
         try:
@@ -62,7 +62,7 @@ class AccountBookView(APIView):
             return Response(account_book_data, status=status.HTTP_200_OK)
         
         except IndexError:
-            return Response({"message":"올바른 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountBookDateSetView(APIView):
@@ -85,7 +85,7 @@ class AccountBookDateSetView(APIView):
     @swagger_auto_schema(
         manual_parameters=[from_param_config, to_param_config],
         operation_summary="가계부 날짜 범위 설정",
-        responses={200: "성공", 400: "매개변수 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 400: "매개변수 에러", 401: "인증 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
         try:
@@ -100,7 +100,7 @@ class AccountBookDateSetView(APIView):
             return Response(account_book_date_range_data, status=status.HTTP_200_OK)
         
         except ValidationError:
-            return Response({"message":"올바른 날짜를 입력해주세요.(Ex: YYYY-MM-DD)"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM-DD)"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountBookDetailView(APIView):
@@ -114,7 +114,7 @@ class AccountBookDetailView(APIView):
     @swagger_auto_schema(
         request_body=AccountBookCreateSerializer,
         operation_summary="가계부 수정",
-        responses={200: "성공", 400: "인풋값 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 400: "인풋값 에러", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def put(self, request, account_book_id):
         account_book = self.get_objects(account_book_id)
@@ -126,7 +126,7 @@ class AccountBookDetailView(APIView):
     
     @swagger_auto_schema(
         operation_summary="가계부 삭제",
-        responses={204: "성공", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={204: "성공", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def delete(self, request, account_book_id):
         account_book = self.get_objects(account_book_id)

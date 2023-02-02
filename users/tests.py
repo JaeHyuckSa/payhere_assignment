@@ -147,10 +147,10 @@ class UserSignupAPIViewTestCase(APITestCase):
 
 class UserSigninAPIViewTestCase(APITestCase):
     @classmethod
-    def setUpTestData(self):
-        self.user_success_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        self.user_fail_data = {"email": "test1234@test.com", "password": "Test1234!!"}
-        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+    def setUpTestData(cls):
+        cls.user_success_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user_fail_data = {"email": "test1234@test.com", "password": "Test1234!!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
 
     def setUp(self):
         self.access_token = self.client.post(reverse("auth-signin"), self.user_success_data).data["access"]
@@ -195,9 +195,9 @@ class UserSigninAPIViewTestCase(APITestCase):
 
 class UserTokenVerifyAPIViewTestCase(APITestCase):
     @classmethod
-    def setUpTestData(self):
-        self.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+    def setUpTestData(cls):
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
 
     def setUp(self):
         self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
@@ -233,9 +233,9 @@ class UserTokenVerifyAPIViewTestCase(APITestCase):
 
 class UserSignoutAPIViewTestCase(APITestCase):
     @classmethod
-    def setUpTestData(self):
-        self.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        self.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+    def setUpTestData(cls):
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
 
     def setUp(self):
         self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
