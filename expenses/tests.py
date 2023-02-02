@@ -59,7 +59,7 @@ class ExpenseListAPIViewTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    # 해당 일자 지출 리스트 조회 실패 (지출 찾을 수 없음)
+    # 해당 일자 지출 리스트 조회 실패 (가계부 찾을 수 없음)
     def test_expense_list_param_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-list')}?date=2023-02-19",
@@ -130,7 +130,7 @@ class ExpenseCreateAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         
     # 해당 일자 지출 생성 실패 (다른 회원)
-    def test_expense_create_anonymous_fail(self):
+    def test_expense_create_other_user_fail(self):
         response = self.client.post(
             path=reverse("expense-create", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
@@ -144,8 +144,8 @@ class ExpenseCreateAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 404)
-        
-        
+
+
 class ExpenseDetailAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):        
@@ -183,7 +183,7 @@ class ExpenseDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         
     # 특정 지출 조회 실패 (다른 회원)
-    def test_expense_detail_get_anonymous_fail(self):
+    def test_expense_detail_get_other_user_fail(self):
         response = self.client.post(
             path=reverse("expense-detail", kwargs={"expense_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
@@ -214,7 +214,7 @@ class ExpenseDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         
     # 특정 지출 복제 실패 (다른 회원)
-    def test_expense_detail_post_anonymous_fail(self):
+    def test_expense_detail_post_other_user_fail(self):
         response = self.client.post(
             path=reverse("expense-detail", kwargs={"expense_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
