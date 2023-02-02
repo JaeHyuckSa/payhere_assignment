@@ -29,6 +29,7 @@ urlpatterns = [
     # Apps
     path("users/auth/", include("users.urls")),
     path("account-books/", include("account_books.urls")),
+    path("expenses/", include("expenses.urls")),
     
     # Swagger
     path("", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
