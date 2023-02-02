@@ -41,3 +41,22 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
                 }
             },
         }
+
+
+class ExpenseShareUrlSerializer(serializers.ModelSerializer):
+    date_at = serializers.SerializerMethodField("get_date_at")
+    owner = serializers.SerializerMethodField()
+    money = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Expense
+        fields = ("money", "expense_detail", "payment_method", "memo",  "owner", "account_book", "date_at", )
+    
+    def get_date_at(self, obj):
+        return DateFormat(obj.account_book.date_at).format("Y-m-d")
+    
+    def get_owner(self, obj):
+        return obj.owner.nickname
+    
+    def get_money(self, obj):
+        return format(obj.money, ",")
