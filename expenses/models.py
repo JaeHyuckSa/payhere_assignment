@@ -6,8 +6,8 @@ from account_books.models import TimeStampModel
 
 class Expense(TimeStampModel):
     PAYMENT_METHOD = (
-        ("0", "현금"),
-        ("1", "카드"),
+        ("현금", "현금"),
+        ("카드", "카드"),
     )
     
     money = models.IntegerField("금액")
@@ -15,7 +15,7 @@ class Expense(TimeStampModel):
     payment_method = models.CharField("결제 수단", max_length=2, default=PAYMENT_METHOD[0][0], choices=PAYMENT_METHOD)
     memo = models.CharField("메모", max_length=255, null=True)
     
-    user = models.ForeignKey("users.User", verbose_name="유저", on_delete=models.CASCADE, related_name="expenses")
+    owner = models.ForeignKey("users.User", verbose_name="유저", on_delete=models.CASCADE, related_name="expenses")
     account_book = models.ForeignKey("account_books.AccountBook", verbose_name="가계부", on_delete=models.CASCADE, related_name="expenses")
     
     @property

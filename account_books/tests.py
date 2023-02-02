@@ -166,7 +166,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 성공
     def test_account_book_detail_put_success(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
             data={"date_at": "2023-02-06"},
         )
@@ -175,7 +175,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 실패 (날짜 중복)
     def test_account_book_detail_put_unique_fail(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
             data={"date_at": "2023-02-05"},
         )
@@ -184,7 +184,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 실패 (날짜 형식이 아닐 때)
     def test_account_book_detail_put_invalid_fail(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
             data={"date_at": "123456"},
         )
@@ -193,7 +193,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 실패 (없는 가계부)
     def test_account_book_detail_put_exist_fail(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "15"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
             data={"date_at": "2023-02-06"},
         )
@@ -202,7 +202,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 실패 (비회원)
     def test_account_book_detail_put_anonymous_fail(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             data={"date_at": "2023-02-06"},
         )
         self.assertEqual(response.status_code, 403)
@@ -210,7 +210,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 수정 실패 (다른 회원)
     def test_account_book_detail_put_anonymous_fail(self):
         response = self.client.put(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
             data={"date_at": "2023-02-06"},
         )
@@ -219,7 +219,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 삭제 성공
     def test_account_book_detail_delete_success(self):
         response = self.client.delete(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 204)
@@ -227,7 +227,7 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 삭제 실패 (없는 가계부)
     def test_account_book_detail_delete_exist_fail(self):
         response = self.client.delete(
-            path=reverse("account-book-details", kwargs={"account_book_id": "15"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "15"}),
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 404)
@@ -235,14 +235,14 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
     # 가계부 삭제 실패 (비회원)
     def test_account_book_detail_delete_anonymous_fail(self):
         response = self.client.delete(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
         )
         self.assertEqual(response.status_code, 403)
     
     # 가계부 삭제 실패 (다른 회원)
     def test_account_book_detail_delete_anonymous_fail(self):
         response = self.client.delete(
-            path=reverse("account-book-details", kwargs={"account_book_id": "1"}),
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
         )
         self.assertEqual(response.status_code, 403)
