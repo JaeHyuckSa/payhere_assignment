@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "drf_yasg",
+    "mptt",
     
     # internal apps
     "users",
@@ -177,19 +178,19 @@ SIMPLE_JWT = {
 #CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "handlers": {
-#         "console": {
-#             "level": "DEBUG",
-#             "class": "logging.StreamHandler",
-#         },
-#     },
-#     "loggers": {
-#         "django.db.backends": {
-#             "handlers": ["console"],
-#             "level": "DEBUG",
-#         },
-#     },
-# }
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
+}

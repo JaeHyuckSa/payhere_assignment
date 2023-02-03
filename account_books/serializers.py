@@ -7,14 +7,38 @@ from django.utils.dateformat import DateFormat
 # account_books
 from .models import AccountBook
 
+# expenses
+from expenses.serializers import ExpenseListSerializer
 
-class AccountBookSerializer(serializers.ModelSerializer):
+# incomes
+from incomes.serializers import IncomeListSerializer
+
+
+
+class AccountBookListSerializer(serializers.ModelSerializer):
     date_at = serializers.SerializerMethodField()
     day_total_money = serializers.SerializerMethodField()
     
     class Meta:
         model = AccountBook
-        fields = ("date_at",  "day_total_money", )
+        fields = ("id", "date_at", "day_total_money", )
+        
+    def get_date_at(self, obj):
+        return DateFormat(obj.date_at).format("Y-m-d")
+    
+    def get_day_total_money(self, obj):
+        return format(obj.day_total_money, ",")
+
+
+class AccountBookDetailSerializer(serializers.ModelSerializer):
+    date_at = serializers.SerializerMethodField()
+    day_total_money = serializers.SerializerMethodField()
+    expenses = ExpenseListSerializer(many=True)
+    incomes = IncomeListSerializer(many=True)
+    
+    class Meta:
+        model = AccountBook
+        fields = ("id", "date_at", "day_total_money", "expenses", "incomes", )
         
     def get_date_at(self, obj):
         return DateFormat(obj.date_at).format("Y-m-d")
@@ -27,7 +51,7 @@ class AccountBookCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccountBook
-        fields = ("date_at",)
+        fields = ("date_at", )
         extra_kwargs = {
             "date_at": {
                 "error_messages": {

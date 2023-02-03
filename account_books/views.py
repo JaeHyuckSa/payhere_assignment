@@ -16,8 +16,9 @@ from drf_yasg import openapi
 # account_books
 from .models import AccountBook
 from .serializers import (
-    AccountBookSerializer, 
-    AccountBookCreateSerializer
+    AccountBookListSerializer, 
+    AccountBookDetailSerializer,
+    AccountBookCreateSerializer,
 )
 
 # payhere
@@ -57,7 +58,7 @@ class AccountBookView(APIView):
             year = date[0]
             month = date[1]
             account_book = get_list_or_404(AccountBook, date_at__year=year, date_at__month=month, owner=request.user.id)
-            serializer = AccountBookSerializer(account_book, many=True)
+            serializer = AccountBookListSerializer(account_book, many=True)
             account_book_data = {
                 "date": f"{year}-{month}",
                 "account_book": serializer.data
@@ -95,7 +96,7 @@ class AccountBookDateSetView(APIView):
             from_date = request.GET.get("from")
             to_date = request.GET.get("to")
             account_book = get_list_or_404(AccountBook, date_at__range=[from_date, to_date], owner=request.user.id)
-            serializer = AccountBookSerializer(account_book, many=True)
+            serializer = AccountBookListSerializer(account_book, many=True)
             account_book_date_range_data = {
                 "date_range": f"{from_date} ~ {to_date}",
                 "account_book": serializer.data
@@ -113,6 +114,15 @@ class AccountBookDetailView(APIView):
         account_book = get_object_or_404(AccountBook, id=account_book_id)
         self.check_object_permissions(self.request, account_book)
         return account_book
+    
+    @swagger_auto_schema(
+        operation_summary="일별 가게부 상세 조회",
+        responses={200: "성공", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def get(self, request, account_book_id):
+        account_book = self.get_objects(account_book_id)
+        serializer = AccountBookDetailSerializer(account_book)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     @swagger_auto_schema(
         request_body=AccountBookCreateSerializer,

@@ -164,6 +164,38 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
         self.user_access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
         self.other_user_access_token = self.client.post(reverse("auth-signin"), self.other_user_data).data["access"]
     
+    # 가계부 상세 조회 성공
+    def test_account_book_detail_get_success(self):
+        response = self.client.get(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
+            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 가계부 상세 조회 실패 (비회원)
+    def test_account_book_detail_get_anonymous_fail(self):
+        response = self.client.get(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
+        )
+        self.assertEqual(response.status_code, 403)
+    
+    # 가계부 수정 실패 (다른 회원)
+    def test_account_book_detail_get_other_user_fail(self):
+        response = self.client.get(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
+            HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
+        )
+        print(response.data)
+        self.assertEqual(response.status_code, 403)
+        
+    # 가계부 상세 조회 실패 (가계부 찾을 수 없음)
+    def test_account_book_detail_get_exits_success(self):
+        response = self.client.get(
+            path=reverse("account-book-detail", kwargs={"account_book_id": "8"}),
+            HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
+    
     # 가계부 수정 성공
     def test_account_book_detail_put_success(self):
         response = self.client.put(

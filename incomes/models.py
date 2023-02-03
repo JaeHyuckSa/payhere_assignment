@@ -34,7 +34,7 @@ class Income(TimeStampModel):
         db_table = "Income"
     
     def __str__(self):
-        return f"[{self.created_at}]{self.moeny}원"
+        return f"[{self.created_at}]{self.money}원"
 
 
 class IncomeURL(models.Model):
