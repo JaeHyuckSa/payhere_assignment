@@ -148,7 +148,7 @@ class ExpenseCategoryView(APIView):
     
     @swagger_auto_schema(
         operation_summary="지출 카테고리 리스트 조회",
-        responses={201: "성공", 401: "인증 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 401: "인증 에러", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, reuqest):
         category_data = {}
