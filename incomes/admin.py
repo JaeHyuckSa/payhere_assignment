@@ -1,3 +1,9 @@
+# django
 from django.contrib import admin
 
-# Register your models here.
+# incomes
+from .models import Income, IncomeURL
+
+
+admin.site.register(Income)
+admin.site.register(IncomeURL)
