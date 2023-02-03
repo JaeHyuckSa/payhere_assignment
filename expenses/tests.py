@@ -374,7 +374,7 @@ class ExpenseCategorySearchAPIViewTestCase(APITestCase):
     def setUp(self):
         self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
 
-    # 수익 카테고리 검색 조회 성공 
+    # 지출 카테고리 검색 조회 성공 
     def test_expense_category_search_success(self):
         response = self.client.get(
             path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
@@ -502,11 +502,15 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
             expired_at="2024-02-10", 
             expense_id=2,
         )
+
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
     
     # 특정 지출 공유 단축 URL 조회 성공 
     def test_expense_share_url_success(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=Mgd17c80f",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 200)
     
@@ -514,12 +518,21 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
     def test_expense_share_url_time_limit_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=MQd17c80f",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 400)
+        
+    # 특정 지출 공유 단축 URL 조회 실패 (비회원)
+    def test_expense_share_url_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-share-url')}?key=MQd17c80f",
+        )
+        self.assertEqual(response.status_code, 401)
     
     # 특정 지출 공유 단축 URL 조회 실패 (지출 내역 찾을 수 없음)
     def test_expense_share_url_exist_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=ddddddd",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 404)

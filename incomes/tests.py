@@ -9,7 +9,7 @@ from django.core.management import call_command
 import random
 
 # income
-from .models import Income, IncomeURL, IncomeCategory
+from .models import Income, IncomeURL
 
 # users
 from users.models import User
