@@ -61,6 +61,7 @@ class Command(BaseCommand):
                     memo=Faker().sentence(),
                     owner_id=random.randint(1,100),
                     account_book_id=random.randint(1,3000),
+                    category_id=random.randint(1,62),
                 ) for _ in range(1, 100)
             ]
             Expense.objects.bulk_create(expense_list)
@@ -77,6 +78,7 @@ class Command(BaseCommand):
                     memo=Faker().sentence(),
                     owner_id=random.randint(1,100),
                     account_book_id=random.randint(1,3000),
+                    category_id=random.randint(1,7),
                 ) for _ in range(1, 100)
             ]
             Income.objects.bulk_create(income_list)

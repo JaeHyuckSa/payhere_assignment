@@ -7,7 +7,6 @@ from rest_framework.generics import get_object_or_404
 
 # django
 from django.shortcuts import get_list_or_404
-from django.core.exceptions import ValidationError
 
 # drf_yasg
 from drf_yasg.utils import swagger_auto_schema
@@ -54,57 +53,15 @@ class AccountBookView(APIView):
     )
     def get(self, request):
         try:
-            date = request.GET.get("date").split('-')
+            date = request.GET.get("date", None).split('-')
             year = date[0]
             month = date[1]
             account_book = get_list_or_404(AccountBook, date_at__year=year, date_at__month=month, owner=request.user.id)
             serializer = AccountBookListSerializer(account_book, many=True)
-            account_book_data = {
-                "date": f"{year}-{month}",
-                "account_book": serializer.data
-            }
-            return Response(account_book_data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except IndexError:
             return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AccountBookDateSetView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    from_param_config = openapi.Parameter(
-        "from",
-        in_=openapi.IN_QUERY,
-        description="년 월 일 입력 (Ex:YYYY-MM-DD)",
-        type=openapi.TYPE_STRING,
-    )
-    
-    to_param_config = openapi.Parameter(
-        "to",
-        in_=openapi.IN_QUERY,
-        description="년 월 일 입력 (Ex:YYYY-MM-DD)",
-        type=openapi.TYPE_STRING,
-    )
-    
-    @swagger_auto_schema(
-        manual_parameters=[from_param_config, to_param_config],
-        operation_summary="가계부 날짜 범위 설정",
-        responses={200: "성공", 400: "매개변수 에러", 401: "인증 오류", 404: "찾을 수 없음", 500: "서버 에러"},
-    )
-    def get(self, request):
-        try:
-            from_date = request.GET.get("from")
-            to_date = request.GET.get("to")
-            account_book = get_list_or_404(AccountBook, date_at__range=[from_date, to_date], owner=request.user.id)
-            serializer = AccountBookListSerializer(account_book, many=True)
-            account_book_date_range_data = {
-                "date_range": f"{from_date} ~ {to_date}",
-                "account_book": serializer.data
-            }
-            return Response(account_book_date_range_data, status=status.HTTP_200_OK)
-        
-        except ValidationError:
-            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM-DD)"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountBookDetailView(APIView):

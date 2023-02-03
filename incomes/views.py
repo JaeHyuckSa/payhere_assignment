@@ -3,22 +3,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 # django
 from django.db import IntegrityError
 from django.utils import timezone
+from django.db.models import Q
+from django.shortcuts import get_list_or_404 
 
 # drf_yasg
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 # incomes
-from .models import Income, IncomeURL
+from .models import Income, IncomeURL, IncomeCategory
 from .serializers import (
     IncomeListSerializer,  
     IncomeDetailSerializer,
     IncomeCreateSerializer,
+    IncomeCategorySerializer,
+    IncomeSearchListSerializer,
     IncomeShareUrlSerializer
 )
 from .utils import IncomeCalcUtil, IncomeUrlUtil
@@ -51,7 +55,7 @@ class IncomeListView(APIView):
         responses={200: "성공", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
-        date = request.GET.get("date")
+        date = request.GET.get("date", None)
         income = self.get_objects(date)
         serializer = IncomeListSerializer(income, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -117,7 +121,7 @@ class IncomeDetailView(APIView):
         try:
             income = self.get_objects(income_id)
             income_money = income.money
-            serializer = IncomeCreateSerializer(income, data=request.data, partial=True, context={"request": request})
+            serializer = IncomeCreateSerializer(income, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 IncomeCalcUtil.mix_total_money_income(income.account_book, income_money, int(request.data["money"]))
@@ -136,6 +140,75 @@ class IncomeDetailView(APIView):
         IncomeCalcUtil.sub_total_money_income(income.account_book, income.money)
         income.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class IncomeCategoryView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @swagger_auto_schema(
+        operation_summary="수익 카테고리 리스트 조회",
+        responses={200: "성공", 401: "인증 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def get(self, reuqest):
+        category_data = {}
+        for i in range(1, 4):
+            main_category = get_object_or_404(IncomeCategory, id=i)
+            sub_category = main_category.get_descendants(include_self=False)
+            sub_category_serializer = IncomeCategorySerializer(sub_category, many=True)
+            category_data[f"({i}) {main_category.name}"] = sub_category_serializer.data
+        return Response(category_data, status=status.HTTP_200_OK)
+
+
+class IncomeCategorySearchView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    date_param_config = openapi.Parameter(
+        "date",
+        in_=openapi.IN_QUERY,
+        description="년 월 입력 (Ex:YYYY-MM)",
+        type=openapi.TYPE_STRING,
+    )
+
+    main_param_config = openapi.Parameter(
+        "main",
+        in_=openapi.IN_QUERY,
+        description="메인 카테고리 입력",
+        type=openapi.TYPE_STRING,
+    )
+    
+    sub_param_config = openapi.Parameter(
+        "sub",
+        in_=openapi.IN_QUERY,
+        description="서브 카테고리 입력",
+        type=openapi.TYPE_STRING,
+    )
+    
+    @swagger_auto_schema(
+        manual_parameters=[date_param_config, main_param_config, sub_param_config],
+        operation_summary="수익 카테고리 검색 조회",
+        responses={200: "성공", 400: "매개변수 에러", 401: "인증 에러", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def get(self, request):
+        try:
+            date = request.GET.get("date", None).split('-')
+            main = request.GET.get("main", None)
+            sub = request.GET.get("sub", None)
+            year = date[0]
+            month = date[1]
+            
+            if main or sub:
+                income = Income.objects.select_related('account_book').select_related("category").filter \
+                (account_book__in=AccountBook.objects.filter(date_at__year=year, date_at__month=month, owner=request.user),
+                category__in=get_list_or_404(IncomeCategory, Q(name=main) | Q(name=sub)))
+                serializer = IncomeSearchListSerializer(income, many=True)
+            
+            income = Income.objects.select_related('account_book').filter \
+            (account_book__in=AccountBook.objects.filter(date_at__year=year, date_at__month=month, owner=request.user))
+            serializer = IncomeSearchListSerializer(income, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except IndexError:
+            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IncomeShareUrlCreateView(APIView):
@@ -163,7 +236,7 @@ class IncomeShareUrlCreateView(APIView):
 
 
 class IncomeShareUrlView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
     encode_key_param_config = openapi.Parameter(
         "encode_key",
@@ -171,14 +244,14 @@ class IncomeShareUrlView(APIView):
         description="단축 URL 고유 키",
         type=openapi.TYPE_STRING,
     )
-        
+    
     @swagger_auto_schema(
         manual_parameters=[encode_key_param_config],
         operation_summary="특정 수익 공유 단축 URL 조회",
-        responses={201: "성공", 400: "시간 만료", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 400: "시간 만료", 401: "인증 에러", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
-        encode_key = request.GET.get("key")
+        encode_key = request.GET.get("key", None)
         income_id = IncomeUrlUtil.get_income_id(encode_key)
         income_url = get_object_or_404(IncomeURL, income_id=income_id)
         if income_url.expired_at < timezone.now():
