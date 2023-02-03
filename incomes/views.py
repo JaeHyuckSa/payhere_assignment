@@ -16,7 +16,8 @@ from drf_yasg import openapi
 # incomes
 from .models import Income, IncomeURL
 from .serializers import (
-    IncomeSerializer,  
+    IncomeListSerializer,  
+    IncomeDetailSerializer,
     IncomeCreateSerializer,
     IncomeShareUrlSerializer
 )
@@ -52,7 +53,7 @@ class IncomeListView(APIView):
     def get(self, request):
         date = request.GET.get("date")
         income = self.get_objects(date)
-        serializer = IncomeSerializer(income, many=True)
+        serializer = IncomeListSerializer(income, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -93,7 +94,7 @@ class IncomeDetailView(APIView):
     )
     def get(self, request, income_id):
         income = self.get_objects(income_id)
-        serializer = IncomeSerializer(income)
+        serializer = IncomeDetailSerializer(income)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     @swagger_auto_schema(

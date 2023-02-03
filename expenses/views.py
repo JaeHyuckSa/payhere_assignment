@@ -16,7 +16,8 @@ from drf_yasg import openapi
 # expenses
 from .models import Expense, ExpenseURL
 from .serializers import (
-    ExpenseSerializer,  
+    ExpenseListSerializer,  
+    ExpenseDetailSerializer,
     ExpenseCreateSerializer,
     ExpenseShareUrlSerializer
 )
@@ -53,7 +54,7 @@ class ExpenseListView(APIView):
     def get(self, request):
         date = request.GET.get("date")
         expense = self.get_objects(date)
-        serializer = ExpenseSerializer(expense, many=True)
+        serializer = ExpenseListSerializer(expense, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -94,7 +95,7 @@ class ExpenseDetailView(APIView):
     )
     def get(self, request, expense_id):
         expense = self.get_objects(expense_id)
-        serializer = ExpenseSerializer(expense)
+        serializer = ExpenseDetailSerializer(expense)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     @swagger_auto_schema(

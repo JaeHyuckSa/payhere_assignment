@@ -20,9 +20,15 @@ class Expense(TimeStampModel):
     
     @property
     def brief_expense_detail(self):
-        if self.expense_detail:
-            return f"{self.expense_detail[:10]}..."
-        return None
+        try:
+            if len(self.expense_detail) > 10:
+                return f"{self.expense_detail[:10]}..."
+    
+            elif self.expense_detail:
+                return self.expense_detail
+    
+        except TypeError:
+            return None
     
     class Meta: 
         db_table = "Expense"

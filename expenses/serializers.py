@@ -8,7 +8,30 @@ from django.utils.dateformat import DateFormat
 from .models import Expense
 
 
-class ExpenseSerializer(serializers.ModelSerializer):
+class ExpenseListSerializer(serializers.ModelSerializer):
+    money = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+    expense_detail = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Expense
+        fields = ("id", "money", "expense_detail", "payment_method",  "updated_at", "created_at",)
+    
+    def get_updated_at(self, obj):
+        return DateFormat(obj.updated_at).format("Y-m-d H:i")
+    
+    def get_created_at(self, obj):
+        return DateFormat(obj.created_at).format("Y-m-d H:i")
+    
+    def get_money(self, obj):
+        return format(obj.money, ",")
+    
+    def get_expense_detail(sefl, obj):
+        return obj.brief_expense_detail
+
+
+class ExpenseDetailSerializer(serializers.ModelSerializer):
     money = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()

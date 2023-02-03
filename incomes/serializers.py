@@ -8,7 +8,30 @@ from django.utils.dateformat import DateFormat
 from .models import Income
 
 
-class IncomeSerializer(serializers.ModelSerializer):
+class IncomeListSerializer(serializers.ModelSerializer):
+    money = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+    income_detail = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Income
+        fields = ("id", "money", "income_detail", "payment_method", "updated_at", "created_at",)
+    
+    def get_updated_at(self, obj):
+        return DateFormat(obj.updated_at).format("Y-m-d H:i")
+    
+    def get_created_at(self, obj):
+        return DateFormat(obj.created_at).format("Y-m-d H:i")
+    
+    def get_money(self, obj):
+        return format(obj.money, ",")
+    
+    def get_income_detail(sefl, obj):
+        return obj.brief_income_detail
+
+
+class IncomeDetailSerializer(serializers.ModelSerializer):
     money = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
@@ -25,7 +48,7 @@ class IncomeSerializer(serializers.ModelSerializer):
     
     def get_money(self, obj):
         return format(obj.money, ",")
-    
+
 
 class IncomeCreateSerializer(serializers.ModelSerializer):
     
