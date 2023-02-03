@@ -35,7 +35,7 @@ class IncomeURL(models.Model):
     shared_url = models.URLField("공유 링크")
     expired_at = models.DateTimeField("만료일")
     
-    expense = models.OneToOneField("Income", verbose_name="수익", on_delete=models.CASCADE, related_name="income_urls")
+    income = models.OneToOneField("Income", verbose_name="수익", on_delete=models.CASCADE, related_name="income_urls")
     
     class Meta: 
         db_table = "IncomeURL"

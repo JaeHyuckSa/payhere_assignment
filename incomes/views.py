@@ -1,8 +1,13 @@
-# rest framework
+# rest_framework
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny
+
+# django
+from django.db import IntegrityError
+from django.utils import timezone
 
 # drf_yasg
 from drf_yasg.utils import swagger_auto_schema
@@ -11,17 +16,17 @@ from drf_yasg import openapi
 # incomes
 from .models import Income, IncomeURL
 from .serializers import (
-    IncomeSerializer,
-    IncomeCreateSerializer
+    IncomeSerializer,  
+    IncomeCreateSerializer,
+    IncomeShareUrlSerializer
 )
-from .utils import IncomeCalcUtil
+from .utils import IncomeCalcUtil, IncomeUrlUtil
 
 # account_books
 from account_books.models import AccountBook
 
 # payhere
 from payhere.permissions import IsOwner
-
 
 class IncomeListView(APIView):
     permission_classes = [IsOwner]
@@ -130,3 +135,52 @@ class IncomeDetailView(APIView):
         IncomeCalcUtil.sub_total_money_income(income.account_book, income.money)
         income.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class IncomeShareUrlCreateView(APIView):
+    permission_classes = [IsOwner]
+    
+    def get_objects(self, income_id):
+        income = get_object_or_404(Income, id=income_id)
+        self.check_object_permissions(self.request, income)
+        return income
+    
+    @swagger_auto_schema(
+        operation_summary="특정 수익 공유 단축 URL 생성",
+        responses={201: "성공", 208: "자원 존재함", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def post(self, request, income_id):
+        try:
+            income = self.get_objects(income_id)
+            shared_url = IncomeUrlUtil.get_income_link(request, income)
+            expired_at = IncomeUrlUtil.get_income_link_expired_at(income)
+            IncomeURL.objects.create(shared_url=shared_url, expired_at=expired_at, income_id=income.id)
+            return Response({"단축 URL(1일 제한)":shared_url}, status=status.HTTP_201_CREATED)
+    
+        except IntegrityError:
+            return Response({"message":"해당 수익 내역의 공유 링크가 존재합니다. "}, status=status.HTTP_208_ALREADY_REPORTED)
+
+
+class IncomeShareUrlView(APIView):
+    permission_classes = [AllowAny]
+    
+    encode_key_param_config = openapi.Parameter(
+        "encode_key",
+        in_=openapi.IN_QUERY,
+        description="단축 URL 고유 키",
+        type=openapi.TYPE_STRING,
+    )
+        
+    @swagger_auto_schema(
+        manual_parameters=[encode_key_param_config],
+        operation_summary="특정 수익 공유 단축 URL 조회",
+        responses={201: "성공", 400: "시간 만료", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def get(self, request):
+        encode_key = request.GET.get("key")
+        income_id = IncomeUrlUtil.get_income_id(encode_key)
+        income_url = get_object_or_404(IncomeURL, income_id=income_id)
+        if income_url.expired_at < timezone.now():
+            return Response({"message":"만료된 URL 입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = IncomeShareUrlSerializer(income_url.income)
+        return Response(serializer.data, status=status.HTTP_200_OK)
