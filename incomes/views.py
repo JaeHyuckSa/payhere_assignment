@@ -201,6 +201,7 @@ class IncomeCategorySearchView(APIView):
                 (account_book__in=AccountBook.objects.filter(date_at__year=year, date_at__month=month, owner=request.user),
                 category__in=get_list_or_404(IncomeCategory, Q(name=main) | Q(name=sub)))
                 serializer = IncomeSearchListSerializer(income, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             
             income = Income.objects.select_related('account_book').filter \
             (account_book__in=AccountBook.objects.filter(date_at__year=year, date_at__month=month, owner=request.user))

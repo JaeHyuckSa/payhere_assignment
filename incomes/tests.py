@@ -3,9 +3,13 @@ from rest_framework.test import APITestCase
 
 # django
 from django.urls import reverse
+from django.core.management import call_command
+
+# python
+import random
 
 # income
-from .models import Income, IncomeURL
+from .models import Income, IncomeURL, IncomeCategory
 
 # users
 from users.models import User
@@ -322,6 +326,94 @@ class IncomeDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class IncomeCategoryAPIViewTestCase(APITestCase):
+    
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        call_command('loaddata', 'json_data/income_category_data.json')
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        
+    # 수익 카테고리 리스트 조회 성공
+    def test_income_category_success(self):
+        response = self.client.get(
+            path=reverse("income-category"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 수익 카테고리 리스트 조회 실패 (비회원)
+    def test_income_category_anonymous_fail(self):
+        response = self.client.get(
+            path=reverse("income-category"),
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+class IncomeCategorySearchAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        cls.account_book = AccountBook.objects.create(date_at=f"2023-02-01", owner=cls.user)
+        call_command('loaddata', 'json_data/income_category_data.json')
+        for _ in range(101):
+            cls.income = Income.objects.create(
+                    money=3000000, 
+                    income_detail="(주) IT 회사",
+                    payment_method="현금",
+                    memo="돈 많이 받았다!",
+                    owner=cls.user,
+                    account_book=cls.account_book,
+                    category_id=random.randint(1, 7),
+                )
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+
+    # 수익 카테고리 검색 조회 성공 
+    def test_income_category_search_success(self):
+        response = self.client.get(
+            path=f"{reverse('income-category-search')}?date=2023-02&main=근로소득&sub=금융소득",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 수익 카테고리 검색 조회 성공 (해당 월별 가계부의 모든 쿼리)
+    def test_income_category_search_all_success(self):
+        response = self.client.get(
+            path=f"{reverse('income-category-search')}?date=2023-02",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 수익 카테고리 검색 조회 실패 (카테고리 매개변수 잘못됨)
+    def test_income_category_search_date_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('income-category-search')}?date=202302&main=근로소득&sub=금융소득",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+    
+    # 수익 카테고리 검색 조회 실패 (비회원)
+    def test_income_category_search_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('income-category-search')}?date=2023-02&main=근로소득&sub=금융소득",
+        )
+        self.assertEqual(response.status_code, 401)
+    
+    # 수익 카테고리 검색 조회 실패 (지출 내역 없음)
+    def test_income_category_search_tag_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('income-category-search')}?date=2023-02&main=근로/소득&sub=금융/소득",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+
 class IncomeShareUrlCreateAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):        
@@ -383,7 +475,7 @@ class IncomeShareUrlCreateAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 404)
-        
+
 
 class IncomeShareUrlAPIViewTestCase(APITestCase):
     @classmethod

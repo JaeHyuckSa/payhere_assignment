@@ -3,6 +3,10 @@ from rest_framework.test import APITestCase
 
 # django
 from django.urls import reverse
+from django.core.management import call_command
+
+# python
+import random
 
 # expenses
 from .models import Expense, ExpenseURL
@@ -322,6 +326,94 @@ class ExpenseDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class ExpenseCategoryAPIViewTestCase(APITestCase):
+    
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        call_command('loaddata', 'json_data/expense_category_data.json')
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        
+    # 지출 카테고리 리스트 조회 성공
+    def test_expense_category_success(self):
+        response = self.client.get(
+            path=reverse("expense-category"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 리스트 조회 실패 (비회원)
+    def test_expense_category_anonymous_fail(self):
+        response = self.client.get(
+            path=reverse("expense-category"),
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+class ExpenseCategorySearchAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        cls.account_book = AccountBook.objects.create(date_at=f"2023-02-01", owner=cls.user)
+        call_command('loaddata', 'json_data/expense_category_data.json')
+        for _ in range(101):
+            cls.expense = Expense.objects.create(
+                    money=30000,
+                    expense_detail="(주) 소고기 짱 좋아", 
+                    payment_method="현금", 
+                    memo="소고기 많이 먹음",
+                    account_book=cls.account_book,
+                    owner=cls.user,
+                    category_id=random.choice([1, 16]),
+                )
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+
+    # 수익 카테고리 검색 조회 성공 
+    def test_expense_category_search_success(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 검색 조회 성공 (해당 월별 가계부의 모든 쿼리)
+    def test_expense_category_search_all_success(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 검색 조회 실패 (카테고리 매개변수 잘못됨)
+    def test_expense_category_search_date_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=202302&main=식비&sub=식사/간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+    
+    # 지출 카테고리 검색 조회 실패 (비회원)
+    def test_expense_category_search_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
+        )
+        self.assertEqual(response.status_code, 401)
+    
+    # 지출 카테고리 검색 조회 실패 (지출 내역 없음)
+    def test_expense_category_search_tag_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식/비&sub=식사//간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+
 class ExpenseShareUrlCreateAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):        
@@ -339,7 +431,7 @@ class ExpenseShareUrlCreateAPIViewTestCase(APITestCase):
                     account_book=cls.account_book,
                     owner=cls.user,
                 )
-        cls.expense_url = ExpenseURL.objects.create(shared_url="http://testserver/MQd17c80f", expired_at="2024-02-03", expense=cls.expense)
+        cls.expense_url = ExpenseURL.objects.create(shared_url="http://testserver/MQd17c80f", expired_at="2023-02-03", expense=cls.expense)
     
     def setUp(self):
         self.user_access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
@@ -383,7 +475,7 @@ class ExpenseShareUrlCreateAPIViewTestCase(APITestCase):
             HTTP_AUTHORIZATION=f"Bearer {self.user_access_token}",
         )
         self.assertEqual(response.status_code, 404)
-        
+
 
 class ExpenseShareUrlAPIViewTestCase(APITestCase):
     @classmethod
@@ -410,15 +502,11 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
             expired_at="2024-02-10", 
             expense_id=2,
         )
-        
-    def setUp(self):
-        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
-        
+    
     # 특정 지출 공유 단축 URL 조회 성공 
     def test_expense_share_url_success(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=Mgd17c80f",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 200)
     
@@ -426,21 +514,12 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
     def test_expense_share_url_time_limit_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=MQd17c80f",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 400)
-        
-    # 특정 지출 공유 단축 URL 조회 실패 (비회원)
-    def test_expense_share_url_anonymous_fail(self):
-        response = self.client.get(
-            path=f"{reverse('expense-share-url')}?key=MQd17c80f",
-        )
-        self.assertEqual(response.status_code, 401)
     
     # 특정 지출 공유 단축 URL 조회 실패 (지출 내역 찾을 수 없음)
     def test_expense_share_url_exist_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=ddddddd",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 404)
