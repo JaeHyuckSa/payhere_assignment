@@ -5,24 +5,16 @@ from rest_framework import serializers
 from django.utils.dateformat import DateFormat
 
 # incomes
-from .models import Income
+from .models import Income, IncomeCategory
 
 
 class IncomeListSerializer(serializers.ModelSerializer):
     money = serializers.SerializerMethodField()
-    updated_at = serializers.SerializerMethodField()
-    created_at = serializers.SerializerMethodField()
     income_detail = serializers.SerializerMethodField()
     
     class Meta:
         model = Income
-        fields = ("id", "money", "income_detail", "payment_method", "updated_at", "created_at",)
-    
-    def get_updated_at(self, obj):
-        return DateFormat(obj.updated_at).format("Y-m-d H:i")
-    
-    def get_created_at(self, obj):
-        return DateFormat(obj.created_at).format("Y-m-d H:i")
+        fields = ("id", "money", "income_detail", "payment_method", )
     
     def get_money(self, obj):
         return format(obj.money, ",")
@@ -33,28 +25,32 @@ class IncomeListSerializer(serializers.ModelSerializer):
 
 class IncomeDetailSerializer(serializers.ModelSerializer):
     money = serializers.SerializerMethodField()
-    updated_at = serializers.SerializerMethodField()
-    created_at = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
     
     class Meta:
         model = Income
-        fields = ("id", "money", "income_detail", "payment_method", "memo",  "updated_at", "created_at",)
-    
-    def get_updated_at(self, obj):
-        return DateFormat(obj.updated_at).format("Y-m-d H:i")
-    
-    def get_created_at(self, obj):
-        return DateFormat(obj.created_at).format("Y-m-d H:i")
+        fields = ("id", "money", "income_detail", "payment_method", "memo", "category", )
     
     def get_money(self, obj):
         return format(obj.money, ",")
+    
+    def get_category(self, obj):
+        try:
+            if not obj.category.parent_id: 
+                return obj.category.name
+            main = IncomeCategory.objects.get(id=obj.category.parent_id)
+            sub = obj.category.name
+            return f"{main} >> {sub}"
+        
+        except AttributeError:
+            return "없음"
 
 
 class IncomeCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Income
-        fields = ("money", "income_detail", "payment_method", "memo", )
+        fields = ("money", "income_detail", "payment_method", "memo", "category", )
         extra_kwargs = {
             "money": {
                 "error_messages": {
@@ -66,14 +62,41 @@ class IncomeCreateSerializer(serializers.ModelSerializer):
         }
 
 
+class IncomeCategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = IncomeCategory
+        fields = ("id", "name",)
+
+
+class IncomeSearchListSerializer(serializers.ModelSerializer):
+    money = serializers.SerializerMethodField()
+    income_detail = serializers.SerializerMethodField()
+    date_at = serializers.SerializerMethodField("get_date_at")
+    
+    class Meta:
+        model = Income
+        fields = ("id", "money", "income_detail", "payment_method", "date_at"  )
+    
+    def get_money(self, obj):
+        return format(obj.money, ",")
+    
+    def get_income_detail(sefl, obj):
+        return obj.brief_income_detail
+    
+    def get_date_at(self, obj):
+        return DateFormat(obj.account_book.date_at).format("Y-m-d")
+
+
 class IncomeShareUrlSerializer(serializers.ModelSerializer):
     date_at = serializers.SerializerMethodField("get_date_at")
     owner = serializers.SerializerMethodField()
     money = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
     
     class Meta:
         model = Income
-        fields = ("money", "income_detail", "payment_method", "memo",  "owner", "account_book", "date_at", )
+        fields = ("money", "income_detail", "payment_method", "memo",  "owner", "date_at", "category",)
     
     def get_date_at(self, obj):
         return DateFormat(obj.account_book.date_at).format("Y-m-d")
@@ -83,3 +106,15 @@ class IncomeShareUrlSerializer(serializers.ModelSerializer):
     
     def get_money(self, obj):
         return format(obj.money, ",")
+    
+    def get_category(self, obj):
+        try:
+            if not obj.category.parent_id: 
+                return obj.category.name
+            
+            main = IncomeCategory.objects.get(id=obj.category.parent_id)
+            sub = obj.category.name
+            return f"{main} >> {sub}"
+        
+        except AttributeError:
+            return "없음"

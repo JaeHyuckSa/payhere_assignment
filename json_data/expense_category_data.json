@@ -1,0 +1,734 @@
+[
+{
+    "model": "expenses.expensecategory",
+    "pk": 1,
+    "fields": {
+        "name": "식비",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 1,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 2,
+    "fields": {
+        "name": "문화생활비",
+        "parent": null,
+        "lft": 1,
+        "rght": 14,
+        "tree_id": 7,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 3,
+    "fields": {
+        "name": "주거생활비",
+        "parent": null,
+        "lft": 1,
+        "rght": 14,
+        "tree_id": 13,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 4,
+    "fields": {
+        "name": "건강관리비",
+        "parent": null,
+        "lft": 1,
+        "rght": 10,
+        "tree_id": 2,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 5,
+    "fields": {
+        "name": "교통비",
+        "parent": null,
+        "lft": 1,
+        "rght": 10,
+        "tree_id": 4,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 6,
+    "fields": {
+        "name": "차량유지비",
+        "parent": null,
+        "lft": 1,
+        "rght": 10,
+        "tree_id": 14,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 7,
+    "fields": {
+        "name": "쇼핑비",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 10,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 8,
+    "fields": {
+        "name": "미용비",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 8,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 9,
+    "fields": {
+        "name": "교육비",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 3,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 10,
+    "fields": {
+        "name": "사회생활비",
+        "parent": null,
+        "lft": 1,
+        "rght": 10,
+        "tree_id": 9,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 11,
+    "fields": {
+        "name": "유흥비",
+        "parent": null,
+        "lft": 1,
+        "rght": 4,
+        "tree_id": 11,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 12,
+    "fields": {
+        "name": "금융보험비",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 5,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 13,
+    "fields": {
+        "name": "저축",
+        "parent": null,
+        "lft": 1,
+        "rght": 8,
+        "tree_id": 12,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 14,
+    "fields": {
+        "name": "기타",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 6,
+        "level": 0
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 16,
+    "fields": {
+        "name": "식사/간식",
+        "parent": 1,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 1,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 17,
+    "fields": {
+        "name": "커피/음료",
+        "parent": 1,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 1,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 18,
+    "fields": {
+        "name": "식재료",
+        "parent": 1,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 1,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 19,
+    "fields": {
+        "name": "영화/공연",
+        "parent": 2,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 20,
+    "fields": {
+        "name": "게임/어플",
+        "parent": 2,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 21,
+    "fields": {
+        "name": "음악",
+        "parent": 2,
+        "lft": 10,
+        "rght": 11,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 22,
+    "fields": {
+        "name": "도서",
+        "parent": 2,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 23,
+    "fields": {
+        "name": "여행",
+        "parent": 2,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 24,
+    "fields": {
+        "name": "취미",
+        "parent": 2,
+        "lft": 12,
+        "rght": 13,
+        "tree_id": 7,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 25,
+    "fields": {
+        "name": "집세/관리비",
+        "parent": 3,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 26,
+    "fields": {
+        "name": "청소/세탁",
+        "parent": 3,
+        "lft": 10,
+        "rght": 11,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 27,
+    "fields": {
+        "name": "통신비",
+        "parent": 3,
+        "lft": 12,
+        "rght": 13,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 28,
+    "fields": {
+        "name": "생필품",
+        "parent": 3,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 29,
+    "fields": {
+        "name": "생활서비스",
+        "parent": 3,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 30,
+    "fields": {
+        "name": "생활세금",
+        "parent": 3,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 13,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 31,
+    "fields": {
+        "name": "운동/다이어트",
+        "parent": 4,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 2,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 32,
+    "fields": {
+        "name": "병원비/약값",
+        "parent": 4,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 2,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 33,
+    "fields": {
+        "name": "요양비",
+        "parent": 4,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 2,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 34,
+    "fields": {
+        "name": "건강식품",
+        "parent": 4,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 2,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 35,
+    "fields": {
+        "name": "대중교통",
+        "parent": 5,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 4,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 36,
+    "fields": {
+        "name": "택시비",
+        "parent": 5,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 4,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 37,
+    "fields": {
+        "name": "장거리 경비",
+        "parent": 5,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 4,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 38,
+    "fields": {
+        "name": "렌트비",
+        "parent": 5,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 4,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 39,
+    "fields": {
+        "name": "유류비",
+        "parent": 6,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 14,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 40,
+    "fields": {
+        "name": "정비/세차",
+        "parent": 6,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 14,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 41,
+    "fields": {
+        "name": "주차/통행",
+        "parent": 6,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 14,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 42,
+    "fields": {
+        "name": "자동차보험",
+        "parent": 6,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 14,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 43,
+    "fields": {
+        "name": "의류/잡화",
+        "parent": 7,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 10,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 44,
+    "fields": {
+        "name": "전자제품",
+        "parent": 7,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 10,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 45,
+    "fields": {
+        "name": "가구",
+        "parent": 7,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 10,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 46,
+    "fields": {
+        "name": "헤어샵",
+        "parent": 8,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 8,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 47,
+    "fields": {
+        "name": "화장품",
+        "parent": 8,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 8,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 48,
+    "fields": {
+        "name": "뷰티관리",
+        "parent": 8,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 8,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 49,
+    "fields": {
+        "name": "학비",
+        "parent": 9,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 3,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 50,
+    "fields": {
+        "name": "교재비",
+        "parent": 9,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 3,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 51,
+    "fields": {
+        "name": "육아",
+        "parent": 9,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 3,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 52,
+    "fields": {
+        "name": "경조사비",
+        "parent": 10,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 9,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 53,
+    "fields": {
+        "name": "선물/용돈",
+        "parent": 10,
+        "lft": 8,
+        "rght": 9,
+        "tree_id": 9,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 54,
+    "fields": {
+        "name": "모임회비",
+        "parent": 10,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 9,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 55,
+    "fields": {
+        "name": "기부",
+        "parent": 10,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 9,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 56,
+    "fields": {
+        "name": "술값",
+        "parent": 11,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 11,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 57,
+    "fields": {
+        "name": "금융이자",
+        "parent": 12,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 5,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 58,
+    "fields": {
+        "name": "수수료",
+        "parent": 12,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 5,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 59,
+    "fields": {
+        "name": "보장보험",
+        "parent": 12,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 5,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 60,
+    "fields": {
+        "name": "예금/적금",
+        "parent": 13,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 12,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 61,
+    "fields": {
+        "name": "주식/펀드",
+        "parent": 13,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 12,
+        "level": 1
+    }
+},
+{
+    "model": "expenses.expensecategory",
+    "pk": 62,
+    "fields": {
+        "name": "저축/보험",
+        "parent": 13,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 12,
+        "level": 1
+    }
+}
+]

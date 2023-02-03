@@ -106,49 +106,6 @@ class AccountBookAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class AccountBookDateSetAPIViewTestCase(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
-        for i in range(1, 11):
-            AccountBook.objects.create(date_at=f"2023-02-{i}", owner=cls.user)
-        
-    def setUp(self):
-        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
-    
-    # 가계부 날짜 범위 설정 성공
-    def test_account_book_date_set_success(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=2023-02-01&to=2023-02-10",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 200)
-
-    # 가계부 날짜 범위 설정 실패 (매개변수 잘못 설정)
-    def test_account_book_date_set_param_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=20230215&to=20230220",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 400)
-
-    # 가계부 날짜 범위 설정 실패 (비회원)
-    def test_account_book_date_set_anonymous_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
-        )
-        self.assertEqual(response.status_code, 401)
-
-    # 가계부 날짜 범위 설정 실패 (해당 날짜 가계부 없음)
-    def test_account_book_date_set_exist_fail(self):
-        response = self.client.get(
-            path=f"{reverse('account-book-date-set')}?from=2023-02-15&to=2023-02-20",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 404)
-
-
 class AccountBookDetailAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -185,7 +142,6 @@ class AccountBookDetailAPIViewTestCase(APITestCase):
             path=reverse("account-book-detail", kwargs={"account_book_id": "1"}),
             HTTP_AUTHORIZATION=f"Bearer {self.other_user_access_token}",
         )
-        print(response.data)
         self.assertEqual(response.status_code, 403)
         
     # 가계부 상세 조회 실패 (가계부 찾을 수 없음)

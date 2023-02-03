@@ -8,6 +8,7 @@ from django.db import transaction
 # python
 import uuid
 
+
 class IncomeCalcUtil:
     @transaction.atomic
     def sub_total_money_income(account_book, income):

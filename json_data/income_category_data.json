@@ -1,0 +1,86 @@
+[
+{
+    "model": "incomes.incomecategory",
+    "pk": 1,
+    "fields": {
+        "name": "근로소득",
+        "parent": null,
+        "lft": 1,
+        "rght": 6,
+        "tree_id": 1,
+        "level": 0
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 2,
+    "fields": {
+        "name": "금융소득",
+        "parent": null,
+        "lft": 1,
+        "rght": 6,
+        "tree_id": 2,
+        "level": 0
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 3,
+    "fields": {
+        "name": "기타",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 3,
+        "level": 0
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 4,
+    "fields": {
+        "name": "급여",
+        "parent": 1,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 1,
+        "level": 1
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 5,
+    "fields": {
+        "name": "보너스",
+        "parent": 1,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 1,
+        "level": 1
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 6,
+    "fields": {
+        "name": "이자",
+        "parent": 2,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 2,
+        "level": 1
+    }
+},
+{
+    "model": "incomes.incomecategory",
+    "pk": 7,
+    "fields": {
+        "name": "배당금",
+        "parent": 2,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 2,
+        "level": 1
+    }
+}
+]
