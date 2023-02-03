@@ -116,10 +116,11 @@ class ExpenseDetailView(APIView):
     def put(self, request, expense_id):
         try:
             expense = self.get_objects(expense_id)
+            expense_money = expense.money
             serializer = ExpenseCreateSerializer(expense, data=request.data, partial=True, context={"request": request})
             if serializer.is_valid():
                 serializer.save()
-                ExpenseCalcUtil.mix_total_money_expense(expense.account_book, expense.money, int(request.data["money"]))
+                ExpenseCalcUtil.mix_total_money_expense(expense.account_book, expense_money, int(request.data["money"]))
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

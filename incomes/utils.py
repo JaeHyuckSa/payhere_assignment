@@ -16,9 +16,9 @@ class IncomeCalcUtil:
     @transaction.atomic
     def mix_total_money_income(account_book, current_money, request_money):
         if current_money < request_money:
-            account_book.day_total_money -= (request_money - current_money)
+            account_book.day_total_money += (request_money - current_money)
             account_book.save()
             
         elif current_money > request_money:
-            account_book.day_total_money += (current_money - request_money)
+            account_book.day_total_money -= (current_money - request_money)
             account_book.save()

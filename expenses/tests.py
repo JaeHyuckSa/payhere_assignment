@@ -407,7 +407,7 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
         )
         ExpenseURL.objects.create(
             shared_url="http://testserver/Mgd17c80f",
-            expired_at="2023-02-03", 
+            expired_at="2024-02-10", 
             expense_id=2,
         )
     
