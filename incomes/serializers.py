@@ -25,3 +25,19 @@ class IncomeSerializer(serializers.ModelSerializer):
     
     def get_money(self, obj):
         return format(obj.money, ",")
+    
+
+class IncomeCreateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Income
+        fields = ("money", "income_detail", "payment_method", "memo", )
+        extra_kwargs = {
+            "money": {
+                "error_messages": {
+                    "required": "금액을 입력해주세요.",
+                    "blank": "금액을 입력해주세요.",
+                    "invalid": "숫자만 입력해주세요.",
+                }
+            },
+        }

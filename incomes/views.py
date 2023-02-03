@@ -11,8 +11,10 @@ from drf_yasg import openapi
 # incomes
 from .models import Income, IncomeURL
 from .serializers import (
-    IncomeSerializer
+    IncomeSerializer,
+    IncomeCreateSerializer
 )
+from .utils import IncomeCalcUtil
 
 # account_books
 from account_books.models import AccountBook
@@ -47,3 +49,25 @@ class IncomeListView(APIView):
         income = self.get_objects(date)
         serializer = IncomeSerializer(income, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class IncomeCreateView(APIView):
+    permission_classes = [IsOwner]
+    
+    def get_objects(self, account_book_id):
+        account_book = get_object_or_404(AccountBook, id=account_book_id)
+        self.check_object_permissions(self.request, account_book)
+        return account_book
+    
+    @swagger_auto_schema(
+        request_body=IncomeCreateSerializer,
+        operation_summary="해당 일자 수익 생성",
+        responses={201: "성공", 400: "인풋값 에러", 403: "권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+    )
+    def post(self, request, account_book_id):
+        account_book = self.get_objects(account_book_id)
+        serializer = IncomeCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=request.user, account_book=account_book)
+            IncomeCalcUtil.add_total_money_income(account_book, int(request.data["money"]))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
