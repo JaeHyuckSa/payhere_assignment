@@ -6,5 +6,6 @@ from . import views
 
 
 urlpatterns = [
-
+    # Income
+    path("", views.IncomeListView.as_view(), name="income-list"),
 ]
