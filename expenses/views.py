@@ -6,7 +6,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 
 # django
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.utils import timezone
 
