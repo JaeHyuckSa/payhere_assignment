@@ -7,11 +7,11 @@ from account_books.models import TimeStampModel
 
 class Income(TimeStampModel):
     PAYMENT_METHOD = (
-        ("0", "현금"),
+        ("현금", "현금"),
     )
     
     money = models.IntegerField("금액")
-    income_detail = models.CharField("수입 내역", max_length=15, null=True)
+    income_detail = models.CharField("수익 내역", max_length=15, null=True)
     payment_method = models.CharField("결제 수단", max_length=2, null=True, choices=PAYMENT_METHOD)
     memo = models.CharField("메모", max_length=255, null=True)
     owner = models.ForeignKey("users.User", verbose_name="유저", on_delete=models.CASCADE, related_name="incomes")
