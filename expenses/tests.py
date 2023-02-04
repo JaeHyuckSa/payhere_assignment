@@ -326,94 +326,6 @@ class ExpenseDetailAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class ExpenseCategoryAPIViewTestCase(APITestCase):
-    
-    @classmethod
-    def setUpTestData(cls):        
-        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
-        call_command('loaddata', 'json_data/expense_category_data.json')
-        
-    def setUp(self):
-        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
-        
-    # 지출 카테고리 리스트 조회 성공
-    def test_expense_category_success(self):
-        response = self.client.get(
-            path=reverse("expense-category"),
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 200)
-        
-    # 지출 카테고리 리스트 조회 실패 (비회원)
-    def test_expense_category_anonymous_fail(self):
-        response = self.client.get(
-            path=reverse("expense-category"),
-        )
-        self.assertEqual(response.status_code, 401)
-
-
-class ExpenseCategorySearchAPIViewTestCase(APITestCase):
-    @classmethod
-    def setUpTestData(cls):        
-        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
-        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
-        cls.account_book = AccountBook.objects.create(date_at=f"2023-02-01", owner=cls.user)
-        call_command('loaddata', 'json_data/expense_category_data.json')
-        for _ in range(101):
-            cls.expense = Expense.objects.create(
-                    money=30000,
-                    expense_detail="(주) 소고기 짱 좋아", 
-                    payment_method="현금", 
-                    memo="소고기 많이 먹음",
-                    account_book=cls.account_book,
-                    owner=cls.user,
-                    category_id=random.choice([1, 16]),
-                )
-        
-    def setUp(self):
-        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
-
-    # 지출 카테고리 검색 조회 성공 
-    def test_expense_category_search_success(self):
-        response = self.client.get(
-            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 200)
-        
-    # 지출 카테고리 검색 조회 성공 (해당 월별 가계부의 모든 쿼리)
-    def test_expense_category_search_all_success(self):
-        response = self.client.get(
-            path=f"{reverse('expense-category-search')}?date=2023-02",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 200)
-        
-    # 지출 카테고리 검색 조회 실패 (카테고리 매개변수 잘못됨)
-    def test_expense_category_search_date_param_fail(self):
-        response = self.client.get(
-            path=f"{reverse('expense-category-search')}?date=202302&main=식비&sub=식사/간식",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 400)
-    
-    # 지출 카테고리 검색 조회 실패 (비회원)
-    def test_expense_category_search_anonymous_fail(self):
-        response = self.client.get(
-            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
-        )
-        self.assertEqual(response.status_code, 401)
-    
-    # 지출 카테고리 검색 조회 실패 (지출 내역 없음)
-    def test_expense_category_search_tag_param_fail(self):
-        response = self.client.get(
-            path=f"{reverse('expense-category-search')}?date=2023-02&main=식/비&sub=식사//간식",
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-        )
-        self.assertEqual(response.status_code, 404)
-
-
 class ExpenseShareUrlCreateAPIViewTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):        
@@ -533,6 +445,147 @@ class ExpenseShareUrlAPIViewTestCase(APITestCase):
     def test_expense_share_url_exist_fail(self):
         response = self.client.get(
             path=f"{reverse('expense-share-url')}?key=ddddddd",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class ExpenseCategoryAPIViewTestCase(APITestCase):
+    
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        call_command('loaddata', 'json_data/expense_category_data.json')
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        
+    # 지출 카테고리 리스트 조회 성공
+    def test_expense_category_success(self):
+        response = self.client.get(
+            path=reverse("expense-category"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 리스트 조회 실패 (비회원)
+    def test_expense_category_anonymous_fail(self):
+        response = self.client.get(
+            path=reverse("expense-category"),
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+class ExpenseCategorySearchAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        cls.account_book = AccountBook.objects.create(date_at=f"2023-02-01", owner=cls.user)
+        call_command('loaddata', 'json_data/expense_category_data.json')
+        for _ in range(101):
+            cls.expense = Expense.objects.create(
+                    money=30000,
+                    expense_detail="(주) 소고기 짱 좋아", 
+                    payment_method="현금", 
+                    memo="소고기 많이 먹음",
+                    account_book=cls.account_book,
+                    owner=cls.user,
+                    category_id=random.choice([1, 16]),
+                )
+        
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+
+    # 지출 카테고리 검색 조회 성공 
+    def test_expense_category_search_success(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 검색 조회 성공 (해당 월별 가계부의 모든 쿼리)
+    def test_expense_category_search_all_success(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 카테고리 검색 조회 실패 (카테고리 매개변수 잘못됨)
+    def test_expense_category_search_date_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=202302&main=식비&sub=식사/간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+    
+    # 지출 카테고리 검색 조회 실패 (비회원)
+    def test_expense_category_search_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식비&sub=식사/간식",
+        )
+        self.assertEqual(response.status_code, 401)
+    
+    # 지출 카테고리 검색 조회 실패 (지출 내역 없음)
+    def test_expense_category_search_tag_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-category-search')}?date=2023-02&main=식/비&sub=식사//간식",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 404)
+        
+
+class ExpenseCategoryStatAPIViewTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):        
+        cls.user_data = {"email": "test1234@test.com", "password": "Test1234!"}
+        cls.user = User.objects.create_user("test1234@test.com", "test1234", "Test1234!")
+        cls.account_book = AccountBook.objects.create(date_at=f"2023-02-01", owner=cls.user)
+        call_command('loaddata', 'json_data/expense_category_data.json')
+        for _ in range(62):
+            cls.expense = Expense.objects.create(
+                    money=30000,
+                    expense_detail="(주) 소고기 짱 좋아", 
+                    payment_method="현금", 
+                    memo="소고기 많이 먹음",
+                    account_book=cls.account_book,
+                    owner=cls.user,
+                    category_id=random.choice([1, 2, 16, 19]),
+                )
+            
+    def setUp(self):
+        self.access_token = self.client.post(reverse("auth-signin"), self.user_data).data["access"]
+        
+    # 지출 통계 조회 성공 
+    def test_expense_category_stat_success(self):
+        response = self.client.get(
+            path=f"{reverse('expense-caregory-stat')}?date=2023-02",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    # 지출 통계 조회 실패 (카테고리 매개변수 잘못됨)
+    def test_expense_category_stat_param_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-caregory-stat')}?date=202302",
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+        
+    # 지출 통계 조회 실패 (비회원)
+    def test_expense_category_stat_anonymous_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-caregory-stat')}?date=2023-02",
+        )
+        self.assertEqual(response.status_code, 401)
+        
+    # 지출 통계 조회 실패 (가계부 찾을 수 없음)
+    def test_expense_category_stat_exist_fail(self):
+        response = self.client.get(
+            path=f"{reverse('expense-caregory-stat')}?date=2023-04",
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
         self.assertEqual(response.status_code, 404)
