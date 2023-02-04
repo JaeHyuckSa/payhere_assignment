@@ -27,9 +27,19 @@ jobs:
       run: |
         echo "SECRET_KEY=$DJANGO_SECRET_KEY" >> .env
         echo "DEBUG=$DJANGO_DEBUG" >> .env
+        echo "MYSQL_DB=$MYSQL_DB" >> .env
+        echo "MYSQL_USER=$MYSQL_USER" >> .env
+        echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" >> .env
+        echo "MYSQL_HOST=$MYSQL_HOST" >> .env
+        echo "MYSQL_PORT=$MYSQL_PORT" >> .env
       env:
         DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         DJANGO_DEBUG: ${{ secrets.DJANGO_DEBUG }}
+        MYSQL_DB: ${{ secrets.MYSQL_DB }}
+        MYSQL_USER: ${{ secrets.MYSQL_USER }}
+        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+        MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
 
     - name: Install Dependencies
       run: |
