@@ -19,8 +19,18 @@ from .serializers import (
 
 
 class SingupView(APIView):
+    """회원가입
+    
+    nickname, email, password, repassword을 받습니다.
+    
+    <유효성검사>
+    nickname: 3 ~ 10자, 특수문자 포함 x, 중복검사
+    password: 8 ~ 16자, 소문자, 숫자, 특수문자 포함
+    repassword: password와 일치 확인
+    email: 이메일 형식, 중복검사
+    """
     permission_classes = [AllowAny]
-
+    
     @swagger_auto_schema(
         request_body=SignupSerializer,
         operation_summary="회원가입",
@@ -35,12 +45,22 @@ class SingupView(APIView):
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """로그인
+    
+    token value:
+    user_id, nickname, email
+    """
     serializer_class = CustomTokenObtainPairSerializer
 
 
 class SignoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    """로그아웃
+    
+    refresh 토큰을 받으며 재사용 방지하는 blacklist에 저장됩니다.
+    """
 
+    permission_classes = [IsAuthenticated]
+    
     @swagger_auto_schema(
         request_body=SignoutSerializer,
         operation_summary="로그아웃",

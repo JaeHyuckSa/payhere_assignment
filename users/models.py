@@ -30,8 +30,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     email = models.EmailField("이메일", max_length=255, unique=True, error_messages={"unique": "이미 사용중인 이메일입니다."})
     nickname = models.CharField("닉네임", max_length=10, unique=True, error_messages={"unique": "이미 사용중인 닉네임입니다."})
-    is_active = models.BooleanField("로그인 가능 여부",default=True)
-    is_admin = models.BooleanField("관리자 여부",default=False)
+    is_active = models.BooleanField("로그인 가능 여부", default=True)
+    is_admin = models.BooleanField("관리자 여부", default=False)
 
     objects = UserManager()
 

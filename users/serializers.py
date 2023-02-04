@@ -13,7 +13,6 @@ from .validators import (
 )
 
 
-# 회원가입 serializer
 class SignupSerializer(serializers.ModelSerializer):
     repassword = serializers.CharField(
         error_messages={

@@ -9,6 +9,28 @@ from django.db import transaction
 import uuid
 
 
+class ExpenseCalcUtil:
+    @transaction.atomic
+    def sub_total_money_expense(account_book, expense):
+        account_book.day_total_money -= expense
+        account_book.save()
+
+    @transaction.atomic
+    def add_total_money_expense(account_book, expense):
+        account_book.day_total_money += expense
+        account_book.save()
+
+    @transaction.atomic
+    def mix_total_money_expense(account_book, current_money, request_money):
+        if current_money < request_money:
+            account_book.day_total_money -= request_money - current_money
+            account_book.save()
+
+        elif current_money > request_money:
+            account_book.day_total_money += current_money - request_money
+            account_book.save()
+
+
 class IncomeCalcUtil:
     @transaction.atomic
     def sub_total_money_income(account_book, income):
@@ -19,32 +41,32 @@ class IncomeCalcUtil:
     def add_total_money_income(account_book, income):
         account_book.day_total_money += income
         account_book.save()
-    
+
     @transaction.atomic
     def mix_total_money_income(account_book, current_money, request_money):
         if current_money < request_money:
-            account_book.day_total_money += (request_money - current_money)
+            account_book.day_total_money += request_money - current_money
             account_book.save()
-            
+
         elif current_money > request_money:
-            account_book.day_total_money -= (current_money - request_money)
+            account_book.day_total_money -= current_money - request_money
             account_book.save()
 
 
-class IncomeUrlUtil:
-    def get_income_link_expired_at(income):
+class UrlUtil:
+    def get_share_link_expired_at():
         expired_at = timezone.now() + timezone.timedelta(days=1)
         return expired_at
 
-    def get_income_link(request, income):
+    def get_share_link(request, query):
         uid = str(uuid.uuid4())[:7]
-        uidb64 = urlsafe_base64_encode(smart_bytes(income.id))
+        uidb64 = urlsafe_base64_encode(smart_bytes(query.id))
         encode_key = uidb64 + uid
         currnt_site = f"{get_current_site(request).domain}/"
         shared_url = "http://" + currnt_site + encode_key
         return shared_url
 
-    def get_income_id(encode_key):
+    def get_query_id(encode_key):
         uidb64 = encode_key[:-7]
-        income_id = force_str(urlsafe_base64_decode(uidb64))
-        return income_id
+        query_id = force_str(urlsafe_base64_decode(uidb64))
+        return query_id

@@ -15,7 +15,7 @@ from drf_yasg import openapi
 # account_books
 from .models import AccountBook
 from .serializers import (
-    AccountBookListSerializer, 
+    AccountBookListSerializer,
     AccountBookDetailSerializer,
     AccountBookCreateSerializer,
 )
@@ -25,15 +25,21 @@ from payhere.permissions import IsOwner
 
 
 class AccountBookView(APIView):
-    permission_classes = [IsAuthenticated]
+    """가계부 생성, 가계부 월간 조회
     
+    post: 날짜가 중복되지 않는 가계부를 생성합니다.
+    get: url 매개변수로 date(YYYY-MM)를 받으면 월간 가계부 조회합니다.
+        return: id, date_at, day_total_money
+    """
+    permission_classes = [IsAuthenticated]
+
     date_param_config = openapi.Parameter(
         "date",
         in_=openapi.IN_QUERY,
         description="년 월 입력 (Ex:YYYY-MM)",
         type=openapi.TYPE_STRING,
     )
-    
+
     @swagger_auto_schema(
         request_body=AccountBookCreateSerializer,
         operation_summary="가계부 생성",
@@ -45,33 +51,40 @@ class AccountBookView(APIView):
             serializer.save(owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @swagger_auto_schema(
         manual_parameters=[date_param_config],
-        operation_summary="월별 가계부 조회",
+        operation_summary="월간 가계부 조회",
         responses={200: "성공", 400: "매개변수 에러", 401: "인증 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
         try:
-            date = request.GET.get("date", None).split('-')
+            date = request.GET.get("date", None).split("-")
             year = date[0]
             month = date[1]
-            account_book = get_list_or_404(AccountBook, date_at__year=year, date_at__month=month, owner=request.user.id)
-            serializer = AccountBookListSerializer(account_book, many=True)
+            account_books = get_list_or_404(AccountBook, date_at__year=year, date_at__month=month, owner=request.user.id)
+            serializer = AccountBookListSerializer(account_books, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         except IndexError:
-            return Response({"message":"올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"},status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountBookDetailView(APIView):
-    permission_classes = [IsOwner]
+    """가계부 상세조회, 수정, 삭제
     
+    get: 지출/수익내역을 포함하는 일별 가계부 상세 조회합니다.
+        return id, date_at, day_total_money, expenses, incomes
+    put: 날짜가 중복되지 않는 특정 가계부를 수정합니다.
+    delete: 특정 가계부를 삭제합니다.
+    """
+    permission_classes = [IsOwner]
+
     def get_objects(self, account_book_id):
         account_book = get_object_or_404(AccountBook, id=account_book_id)
         self.check_object_permissions(self.request, account_book)
         return account_book
-    
+
     @swagger_auto_schema(
         operation_summary="일별 가게부 상세 조회",
         responses={200: "성공", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},
@@ -80,7 +93,7 @@ class AccountBookDetailView(APIView):
         account_book = self.get_objects(account_book_id)
         serializer = AccountBookDetailSerializer(account_book)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     @swagger_auto_schema(
         request_body=AccountBookCreateSerializer,
         operation_summary="가계부 수정",
@@ -93,7 +106,7 @@ class AccountBookDetailView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @swagger_auto_schema(
         operation_summary="가계부 삭제",
         responses={204: "성공", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},

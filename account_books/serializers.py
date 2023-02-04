@@ -4,28 +4,27 @@ from rest_framework import serializers
 # django
 from django.utils.dateformat import DateFormat
 
-# account_books
+# apps
 from .models import AccountBook
-
-# expenses
 from expenses.serializers import ExpenseListSerializer
-
-# incomes
 from incomes.serializers import IncomeListSerializer
-
 
 
 class AccountBookListSerializer(serializers.ModelSerializer):
     date_at = serializers.SerializerMethodField()
     day_total_money = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = AccountBook
-        fields = ("id", "date_at", "day_total_money", )
-        
+        fields = (
+            "id",
+            "date_at",
+            "day_total_money",
+        )
+
     def get_date_at(self, obj):
         return DateFormat(obj.date_at).format("Y-m-d")
-    
+
     def get_day_total_money(self, obj):
         return format(obj.day_total_money, ",")
 
@@ -35,23 +34,28 @@ class AccountBookDetailSerializer(serializers.ModelSerializer):
     day_total_money = serializers.SerializerMethodField()
     expenses = ExpenseListSerializer(many=True)
     incomes = IncomeListSerializer(many=True)
-    
+
     class Meta:
         model = AccountBook
-        fields = ("id", "date_at", "day_total_money", "expenses", "incomes", )
-        
+        fields = (
+            "id",
+            "date_at",
+            "day_total_money",
+            "expenses",
+            "incomes",
+        )
+
     def get_date_at(self, obj):
         return DateFormat(obj.date_at).format("Y-m-d")
-    
+
     def get_day_total_money(self, obj):
         return format(obj.day_total_money, ",")
 
 
 class AccountBookCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AccountBook
-        fields = ("date_at", )
+        fields = ("date_at",)
         extra_kwargs = {
             "date_at": {
                 "error_messages": {
@@ -61,11 +65,11 @@ class AccountBookCreateSerializer(serializers.ModelSerializer):
                 }
             },
         }
-    
+
     def validate(self, data):
         date_at = data.get("date_at")
         user_id = self.context.get("request").user.id
-        
+
         # 날짜 중복 검사
         try:
             if AccountBook.objects.get(date_at=date_at, owner=user_id):
@@ -73,5 +77,5 @@ class AccountBookCreateSerializer(serializers.ModelSerializer):
 
         except AccountBook.DoesNotExist:
             pass
-        
+
         return data
