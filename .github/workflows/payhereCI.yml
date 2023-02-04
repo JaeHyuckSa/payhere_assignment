@@ -1,0 +1,53 @@
+name: Payhere CI
+
+on:
+  push:
+    branches: [ "develop" ]
+  
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  test_build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.10.8"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Generate Environment Variables File for Production
+      run: |
+        echo "SECRET_KEY=$DJANGO_SECRET_KEY" >> .env
+        echo "DEBUG=$DJANGO_DEBUG" >> .env
+      env:
+        DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        DJANGO_DEBUG: ${{ secrets.DJANGO_DEBUG }}
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run User App Tests
+      run: |
+        python manage.py test users
+
+    - name: Run Account Book App Tests
+      run: |
+        python manage.py test account_books
+    
+    - name: Run Expense App Tests
+      run: |
+        python manage.py test expenses
+
+    - name: Run Income App Tests
+      run: |
+        python manage.py test incomes
