@@ -3,7 +3,6 @@ import os
 import environ
 from datetime import timedelta
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,7 +34,6 @@ INSTALLED_APPS = [
     # third party packages
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
-    "corsheaders",
     "drf_yasg",
     "mptt",
     
@@ -49,7 +47,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -80,13 +77,29 @@ WSGI_APPLICATION = "payhere.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+MYSQL_DB = env("MYSQL_DB")
+if MYSQL_DB:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": MYSQL_DB,
+            "USER": env("MYSQL_USER"),
+            "PASSWORD": env("MYSQL_PASSWORD"),
+            "HOST": env("MYSQL_HOST"),
+            "PORT": env("MYSQL_PORT"),
+            "OPTIONS": {"init_command": "SET sql_mode='STRICT_TRANS_TABLES'"},
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+            "TEST": {
+                "NAME": BASE_DIR / "db.sqlite3",
+            },
+        }
+    }
 
 
 # Password validation
@@ -174,10 +187,6 @@ SIMPLE_JWT = {
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
     "JTI_CLAIM": "jti",
 }
-
-
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
 
 
 # LOGGING = {
