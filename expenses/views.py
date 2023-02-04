@@ -317,7 +317,7 @@ class ExpenseCategorySearchView(APIView):
             return Response(all_serializer.data, status=status.HTTP_200_OK)
 
         except IndexError:
-            return Response({"message": "올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST,)
+            return Response({"message": "올바른 매개변수의 날짜를 입력해주세요.(Ex: YYYY-MM)"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ExpenseCategoryStatView(APIView):
