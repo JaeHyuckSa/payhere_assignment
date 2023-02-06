@@ -92,13 +92,19 @@ python manage.py migrate
 python manage.py loaddata ./json_data/expense_category_data.json
 python manage.py loaddata ./json_data/income_category_data.json
 ```
-- 더미데이터 생성하기
+- 더미데이터 생성
 ```linux
 python manage.py seed_dumy_data
 ```
 - 서버 실행
 ```linux
 python manage.py runserver
+```
+- Line Coverage Report 확인
+```linux
+coverage run manage.py test 
+coverage report 
+coverage html 
 ```
 
 
@@ -546,9 +552,13 @@ class ExpenseCategoryStatView(APIView):
 
 ## 🤙 ****Test Code Case****
 
-### 단위 테스트 코드를 통해 안정성있는 기능 구현에 초점을 맞췄습니다.
+### 기능 단위 테스트 코드를 통해 안정성있는 기능 구현에 초점을 맞췄습니다.(Line Coverage 90% 목표)
+
+![ex_screenshot](./img/line_coverage_1.png)
+![ex_screenshot](./img/line_coverage_2.png)
+
 <details>
-<summary style="font-size: 18px;">USER TEST CODE</summary>
+<summary style="font-size: 20px;">USER TEST CODE</summary>
 <div markdown="1">
 
 
@@ -588,7 +598,7 @@ class ExpenseCategoryStatView(APIView):
 <P>
 
 <details>
-<summary style="font-size: 18px;">ACCOUNT BOOK TEST CODE</summary>
+<summary style="font-size: 20px;">ACCOUNT BOOK TEST CODE</summary>
 <div markdown="2">
 
 ## 가계부 생성, 가계부 월간 조회
@@ -624,7 +634,7 @@ class ExpenseCategoryStatView(APIView):
 <P>
 
 <details>
-<summary style="font-size: 18px;">EXPENSE TEST CODE</summary>
+<summary style="font-size: 20px;">EXPENSE TEST CODE</summary>
 <div markdown="3">
 
 ## 월간 지출 내역 리스트 조회
@@ -699,7 +709,7 @@ class ExpenseCategoryStatView(APIView):
 <P>
 
 <details>
-<summary style="font-size: 18px;">INCOME TEST CODE</summary>
+<summary style="font-size: 20px;">INCOME TEST CODE</summary>
 <div markdown="4">
 
 ## 월간 수익 내역 리스트 조회
