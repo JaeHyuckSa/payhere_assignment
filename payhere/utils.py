@@ -3,24 +3,20 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_bytes, force_str
 from django.utils import timezone
-from django.db import transaction
 
 # python
 import uuid
 
 
 class ExpenseCalcUtil:
-    @transaction.atomic
     def sub_total_money_expense(account_book, expense):
         account_book.day_total_money -= expense
         account_book.save()
 
-    @transaction.atomic
     def add_total_money_expense(account_book, expense):
         account_book.day_total_money += expense
         account_book.save()
 
-    @transaction.atomic
     def mix_total_money_expense(account_book, current_money, request_money):
         if current_money < request_money:
             account_book.day_total_money -= request_money - current_money
@@ -32,17 +28,14 @@ class ExpenseCalcUtil:
 
 
 class IncomeCalcUtil:
-    @transaction.atomic
     def sub_total_money_income(account_book, income):
         account_book.day_total_money -= income
         account_book.save()
 
-    @transaction.atomic
     def add_total_money_income(account_book, income):
         account_book.day_total_money += income
         account_book.save()
 
-    @transaction.atomic
     def mix_total_money_income(account_book, current_money, request_money):
         if current_money < request_money:
             account_book.day_total_money += request_money - current_money

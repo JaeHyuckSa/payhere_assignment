@@ -180,23 +180,19 @@ coverage html
 ### ****a.가계부에 오늘 사용한 돈의 금액과 관련된 메모를 남길 수 있습니다.****
 - 해당 일자의 가계부를 생성하고 해당 일자의 가계부의 지출/수익 내역을 생성을 통해 메모와 사용내역과 지불방법, 금액, 카테고리를 남깁니다.
 - 수입/지출 내역을 생성하면 해당 일자의 총 금액이 계산됩니다.
-- 트랜잭션을 안정하게 수행하기 위해 데이터베이스의 원자성이 보장되게 했습니다.  
 <details>
 <summary style="font-size: 15px;">금액 계산</summary>
 <div markdown="1">
 
 ```python
-@transaction.atomic
 def sub_total_money_expense(account_book, expense):
     account_book.day_total_money -= expense
     account_book.save()
 
-@transaction.atomic
 def add_total_money_expense(account_book, expense):
     account_book.day_total_money += expense
     account_book.save()
 
-@transaction.atomic
 def mix_total_money_expense(account_book, current_money, request_money):
     if current_money < request_money:
         account_book.day_total_money -= request_money - current_money
